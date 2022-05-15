@@ -1,0 +1,57 @@
+#!/bin/python3
+
+from snapshot import Snapshot
+from rich import print as rprint
+import typer
+
+app = typer.Typer()
+
+
+@app.command()
+def add() -> None:
+    savestate = Snapshot('tasks.txt')
+    lst_tasks = []
+
+    while True:
+        task = input("Add a task [q to quit]: ")
+        if task.lower() == 'q':
+            break
+        else:
+            lst_tasks.append(task.capitalize())
+   
+    savestate.take_snapshot(lst_tasks)
+    print("Tasks Saved")
+
+
+@app.command()
+def check() -> None:
+    savestate = Snapshot('tasks.txt')    
+
+    print("\nYour Tasks: \n")
+    for index, task in enumerate(savestate.retrieve()):
+        print(f"Task {index + 1}: {task[0:-1]}\n")
+    
+    print('\n')
+
+
+@app.command()
+def rem(index: int) -> None:
+    savestate = Snapshot('tasks.txt')
+    tasks = savestate.retrieve()
+
+    try:
+        tasks.pop(index - 1)
+        savestate.take_snapshot(tasks) 
+
+    except IndexError:
+        print("Out of bounds")
+
+
+@app.command()
+def dellall() -> None:
+    savestate = Snapshot('tasks.txt')
+    savestate.clear()
+
+
+if __name__ == '__main__':
+    app()
