@@ -1,15 +1,36 @@
 #!/bin/python3
 
-from snapshot import Snapshot
-from rich import print as rprint
 import typer
+import os
 
 app = typer.Typer()
+path = os.path.expanduser('~/.task/tasks.txt')
+
+class Snapshot:
+
+    def __init__(self, file_name) -> None:
+        self.file_name = file_name
+
+    def take_snapshot(self, data: list) -> None:
+        with open(self.file_name, 'w') as f:
+            for line in data:
+                if '\n' in line:
+                    f.write(str(line))
+                else:
+                    f.write(str(line) + '\n')
+
+    def retrieve(self) -> list:
+        with open(self.file_name, 'r') as f:
+            return f.readlines()
+    
+    def clear(self) -> None:
+        with open(self.file_name, 'w') as f:
+            f.write('')
 
 
 @app.command()
 def add() -> None:
-    savestate = Snapshot('tasks.txt')
+    savestate = Snapshot(path)
     lst_tasks = []
 
     while True:
@@ -25,7 +46,7 @@ def add() -> None:
 
 @app.command()
 def check() -> None:
-    savestate = Snapshot('tasks.txt')    
+    savestate = Snapshot(path)    
 
     print("\nYour Tasks: \n")
     for index, task in enumerate(savestate.retrieve()):
@@ -36,7 +57,7 @@ def check() -> None:
 
 @app.command()
 def rem(index: int) -> None:
-    savestate = Snapshot('tasks.txt')
+    savestate = Snapshot(path)
     tasks = savestate.retrieve()
 
     try:
@@ -49,7 +70,7 @@ def rem(index: int) -> None:
 
 @app.command()
 def dellall() -> None:
-    savestate = Snapshot('tasks.txt')
+    savestate = Snapshot(path)
     savestate.clear()
 
 
